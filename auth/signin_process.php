@@ -1,6 +1,7 @@
 <?php
-session_start();
+session_start();//start the session 
 include '../config/config.php'; // Include database connection file
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
@@ -26,11 +27,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Redirect to dashboard based on role
             if ($role == 'admin') {
-                echo "Welcome administration";
-                // header("Location: admin/dashboard.php");
+                // echo "Welcome administration";
+                header("Location: ../admin/dashboard.php");
             } else {
-                echo "Welcome staff";
-                // header("Location: staff/dashboard.php");
+                // echo "Welcome staff";
+                header("Location: ../staff/dashboard.php");
             }
         } else {
             echo "Invalid password!";

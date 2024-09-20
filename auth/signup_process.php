@@ -29,6 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($stmt->execute()) {
             
+            // Redirect to the sign-in page
             header('Location: ./signin.php');
             exit();
 
