@@ -1,6 +1,7 @@
 <?php
 // Include database connection
 include('../config/config.php');
+include('../includes/header.php'); 
 session_start();
 
 // Check if the user is logged in as staff
@@ -10,45 +11,52 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'staff') {
 }
 
 $user_id = $_SESSION['user_id'];
+$user_name = $_SESSION['name']; 
 
-// Fetch pending, approved, and rejected leave requests
-$pending_query = "SELECT COUNT(*) AS count FROM leave_requests WHERE user_id = ? AND status = 'pending'";
-$approved_query = "SELECT COUNT(*) AS count FROM leave_requests WHERE user_id = ? AND status = 'completed'";
-$rejected_query = "SELECT COUNT(*) AS count FROM leave_requests WHERE user_id = ? AND status = 'rejected'";
-
-$stmt = $conn->prepare($pending_query);
-$stmt->bind_param('i', $user_id);
-$stmt->execute();
-$pending_result = $stmt->get_result()->fetch_assoc()['count'];
-
-$stmt = $conn->prepare($approved_query);
-$stmt->bind_param('i', $user_id);
-$stmt->execute();
-$approved_result = $stmt->get_result()->fetch_assoc()['count'];
-
-$stmt = $conn->prepare($rejected_query);
-$stmt->bind_param('i', $user_id);
-$stmt->execute();
-$rejected_result = $stmt->get_result()->fetch_assoc()['count'];
-
-$stmt->close();
-
-// Handle leave application
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $leave_type = $_POST['leave_type'];
-    $start_date = $_POST['start_date'];
-    $end_date = $_POST['end_date'];
-
-    $insert_query = "INSERT INTO leave_requests (user_id, leave_type, start_date, end_date, status) VALUES (?, ?, ?, ?, 'pending')";
-    $stmt = $conn->prepare($insert_query);
-    $stmt->bind_param('isss', $user_id, $leave_type, $start_date, $end_date);
-
-    if ($stmt->execute()) {
-        $success_message = "Leave request submitted successfully!";
-    } else {
-        $error_message = "Failed to submit leave request.";
-    }
+// Determine the greeting based on the current time
+$hour = date("H");
+if ($hour < 12) {
+    $greeting = "Good Morning";
+} elseif ($hour < 15) {
+    $greeting = "Good Afternoon";
+} else {
+    $greeting = "Good Evening";
 }
+
+// Fetch leave counts
+$queries = [
+    'pending' => "SELECT COUNT(*) AS count FROM leave_requests WHERE user_id = ? AND status = 'pending'",
+    'approved' => "SELECT COUNT(*) AS count FROM leave_requests WHERE user_id = ? AND status = 'approved'",
+    'rejected' => "SELECT COUNT(*) AS count FROM leave_requests WHERE user_id = ? AND status = 'rejected'"
+];
+
+$counts = [];
+foreach ($queries as $key => $query) {
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param('i', $user_id);
+    $stmt->execute();
+    $counts[$key] = $stmt->get_result()->fetch_assoc()['count'];
+    $stmt->close();
+}
+
+// Notification for leave request action (you may want to handle this in another script)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    $leave_request_user_id = $_POST['user_id']; // Ensure you pass this from the form
+    $action = $_POST['action'];
+
+    if ($action === 'approve') {
+        $message = 'Your leave request has been approved.';
+    } elseif ($action === 'reject') {
+        $message = 'Your leave request has been rejected.';
+    }
+
+    // Insert notification for the staff user
+    $stmt = $conn->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)");
+    $stmt->bind_param("is", $leave_request_user_id, $message);
+    $stmt->execute();
+    $stmt->close();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -62,125 +70,88 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         body {
             background-color: #f8f9fa;
         }
-
         .dashboard-container {
             width: 80%;
             margin: 0 auto;
             padding: 30px;
         }
-
         header {
             background-color: #343a40;
             color: white;
             padding: 15px;
             text-align: center;
         }
-
         .card {
+            margin-bottom: 20px;
+        }
+        .welcome-message {
+            font-size: 1.5rem;
             margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Staff Dashboard</h1>
-    </header>
-
     <div class="dashboard-container">
         <div class="container">
             <div class="row">
-                <!-- Pending Leave Requests Card -->
+                <div class="welcome-message">
+                    <?php echo htmlspecialchars($greeting) . ', ' . htmlspecialchars($user_name) . '! Welcome to the Staff Dashboard'; ?>
+                </div>
+                
                 <div class="col-md-4">
                     <div class="card text-white bg-warning mb-3">
                         <div class="card-header">Pending Leave Requests</div>
                         <div class="card-body">
-                            <h5 class="card-title"><?php echo htmlspecialchars($pending_result); ?></h5>
+                            <h5 class="card-title"><?php echo htmlspecialchars($counts['pending']); ?></h5>
                             <p class="card-text">Your leave requests awaiting approval.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Approved Leave Requests Card -->
                 <div class="col-md-4">
                     <div class="card text-white bg-success mb-3">
                         <div class="card-header">Approved Leave Requests</div>
                         <div class="card-body">
-                            <h5 class="card-title"><?php echo htmlspecialchars($approved_result); ?></h5>
+                            <h5 class="card-title"><?php echo htmlspecialchars($counts['approved']); ?></h5>
                             <p class="card-text">Your approved leave requests.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Rejected Leave Requests Card -->
                 <div class="col-md-4">
                     <div class="card text-white bg-danger mb-3">
                         <div class="card-header">Rejected Leave Requests</div>
                         <div class="card-body">
-                            <h5 class="card-title"><?php echo htmlspecialchars($rejected_result); ?></h5>
+                            <h5 class="card-title"><?php echo htmlspecialchars($counts['rejected']); ?></h5>
                             <p class="card-text">Your leave requests that were rejected.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Apply for Leave Section -->
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card mb-3">
-                        <div class="card-header">Apply for Leave</div>
-                        <div class="card-body">
-                            <?php if (isset($success_message)): ?>
-                                <div class="alert alert-success"><?php echo $success_message; ?></div>
-                            <?php endif; ?>
-                            <?php if (isset($error_message)): ?>
-                                <div class="alert alert-danger"><?php echo $error_message; ?></div>
-                            <?php endif; ?>
-
-                            <form method="POST" action="">
-                                <div class="mb-3">
-                                    <label for="leave_type" class="form-label">Leave Type</label>
-                                    <select class="form-select" id="leave_type" name="leave_type" required>
-                                        <option value="">Select Leave Type</option>
-                                        <option value="Sick Leave">Sick Leave</option>
-                                        <option value="Casual Leave">Casual Leave</option>
-                                        <option value="Annual Leave">Annual Leave</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="start_date" class="form-label">Start Date</label>
-                                    <input type="date" class="form-control" id="start_date" name="start_date" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="end_date" class="form-label">End Date</label>
-                                    <input type="date" class="form-control" id="end_date" name="end_date" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Submit Leave Request</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Upcoming Leaves Section -->
             <div class="row">
                 <div class="col-md-12">
                     <div class="card mb-3">
                         <div class="card-header">Upcoming Leaves</div>
                         <div class="card-body">
                             <p class="card-text">No upcoming leaves scheduled.</p>
-                            <!-- You can fetch and display upcoming leaves here -->
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Logout button -->
+            <div class="col-md-12 text-center">
+                <a href="../profile/profile.php" class="btn btn-warning mt-3">Go to Profile</a>
+                <a href="../leave/leave_request_logs_for_staff.php" class="btn btn-warning mt-3">View Previous Leave Requests</a>
+                <a href="../leave/apply_for_leave.php" class="btn btn-warning mt-3">Apply for a leave</a>
+                
+            </div>
+
             <a href="http://localhost/leave_management/auth/logout.php" class="btn btn-danger">Logout</a>
         </div>
     </div>
 
-    <!-- Bootstrap JS (optional for interactive components) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
