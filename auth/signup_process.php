@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $confirm_password = $_POST['confirm_password'];
     $role = $_POST['role'];
 
-    // Basic validation
+    
     if (empty($name) || empty($email) || empty($password) || empty($role)) {
         echo "All fields are required!";
     } 

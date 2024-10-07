@@ -8,6 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'staff') {
     header('Location: ../auth/signin.php');
     exit();
 }
+
 $profile_picture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_picture'] : 'default.jpg';
 $user_name = $_SESSION['name'];
 
@@ -19,19 +20,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $end_date = $_POST['end_date'];
     $reason = $_POST['reason'];
 
-    // Insert query including the reason field
+    // Insert leave request query
     $insert_query = "INSERT INTO leave_requests (user_id, leave_type, start_date, end_date, reason, status) VALUES (?, ?, ?, ?, ?, 'pending')";
     $stmt = $conn->prepare($insert_query);
     $stmt->bind_param('issss', $user_id, $leave_type, $start_date, $end_date, $reason);
 
     if ($stmt->execute()) {
+        // Successfully inserted leave request
         $success_message = "Leave request submitted successfully!";
+        
+        // Insert notification for admin
+        $admin_message = "A new leave request has been submitted by " . $_SESSION['name'] . ".";
+        $is_read = 0; // Mark as unread
+        $created_at = date("Y-m-d H:i:s"); // Current timestamp for notification
+
+        $stmt_notification = $conn->prepare("INSERT INTO notifications (user_id, message, is_read, created_at) VALUES (0, ?, ?, ?)");
+        $stmt_notification->bind_param("sis", $admin_message, $is_read, $created_at);
+        $stmt_notification->execute();
+        $stmt_notification->close();
+
     } else {
+        // If leave request insertion fails
         $error_message = "Failed to submit leave request.";
     }
     $stmt->close();
+    $conn->close();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -82,9 +98,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             if (!isset($_SESSION['user_id']) || $_SESSION['role'] == 'staff') {
                                 echo "Apply for a leave";
                             }
-    ?></h1>
+                            ?></h1>
 
-        
+
         <div class="d-flex align-items-center me-3">
             <img src="../uploads/profile_pics/<?php echo htmlspecialchars($profile_picture); ?>"
                 alt="Profile Picture"

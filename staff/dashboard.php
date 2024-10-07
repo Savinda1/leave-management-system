@@ -1,7 +1,7 @@
 <?php
 // Include database connection
 include('../config/config.php');
-include('../includes/header.php'); 
+include('../includes/header.php');
 session_start();
 
 // Check if the user is logged in as staff
@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'staff') {
 }
 
 $user_id = $_SESSION['user_id'];
-$user_name = $_SESSION['name']; 
+$user_name = $_SESSION['name'];
 
 // Determine the greeting based on the current time
 $hour = date("H");
@@ -39,28 +39,13 @@ foreach ($queries as $key => $query) {
     $stmt->close();
 }
 
-// Notification for leave request action (you may want to handle this in another script)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    $leave_request_user_id = $_POST['user_id']; // Ensure you pass this from the form
-    $action = $_POST['action'];
 
-    if ($action === 'approve') {
-        $message = 'Your leave request has been approved.';
-    } elseif ($action === 'reject') {
-        $message = 'Your leave request has been rejected.';
-    }
-
-    // Insert notification for the staff user
-    $stmt = $conn->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)");
-    $stmt->bind_param("is", $leave_request_user_id, $message);
-    $stmt->execute();
-    $stmt->close();
-}
 
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -70,26 +55,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         body {
             background-color: #f8f9fa;
         }
+
         .dashboard-container {
             width: 80%;
             margin: 0 auto;
             padding: 30px;
         }
+
         header {
             background-color: #343a40;
             color: white;
             padding: 15px;
             text-align: center;
         }
+
         .card {
             margin-bottom: 20px;
         }
+
         .welcome-message {
             font-size: 1.5rem;
             margin-bottom: 20px;
         }
     </style>
 </head>
+
 <body>
 
     <div class="dashboard-container">
@@ -98,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 <div class="welcome-message">
                     <?php echo htmlspecialchars($greeting) . ', ' . htmlspecialchars($user_name) . '! Welcome to the Staff Dashboard'; ?>
                 </div>
-                
+
                 <div class="col-md-4">
                     <div class="card text-white bg-warning mb-3">
                         <div class="card-header">Pending Leave Requests</div>
@@ -130,23 +120,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card mb-3">
-                        <div class="card-header">Upcoming Leaves</div>
-                        <div class="card-body">
-                            <p class="card-text">No upcoming leaves scheduled.</p>
+
+            <div class="container mt-4">
+                <div class="card border-primary shadow-lg mx-auto" style="width: 400px;"> <!-- Set a specific width -->
+                    <div class="card-body text-center p-4">
+                        <h4 class="card-title mb-4">Manage Your Leave</h4>
+
+                        <!-- Previous Leave Requests Button -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <a href="../leave/leave_request_logs_for_staff.php" class="btn btn-warning w-100 mt-2"> <!-- Full width button -->
+                                    View Previous Leave Requests
+                                </a>
+                            </div>
+                        </div>
+
+
+                        <!-- Apply for Leave Button -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <a href="../leave/apply_for_leave.php" class="btn btn-info btn-logs w-100 mt-2"> <!-- Full width button -->
+                                    Apply for a Leave
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Go to Profile Button -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <a href="../profile/profile.php" class="btn btn-warning w-100 mt-2"> <!-- Full width button -->
+                                    Go to Profile
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-12 text-center">
-                <a href="../profile/profile.php" class="btn btn-warning mt-3">Go to Profile</a>
-                <a href="../leave/leave_request_logs_for_staff.php" class="btn btn-warning mt-3">View Previous Leave Requests</a>
-                <a href="../leave/apply_for_leave.php" class="btn btn-warning mt-3">Apply for a leave</a>
-                
-            </div>
 
             <a href="http://localhost/leave_management/auth/logout.php" class="btn btn-danger">Logout</a>
         </div>
@@ -154,4 +164,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
+
 </html>
