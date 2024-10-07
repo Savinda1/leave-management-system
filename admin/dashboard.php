@@ -1,7 +1,7 @@
 <?php
 // Include database connection
 include('../config/config.php');
-include('../includes/header.php'); 
+include('../includes/header.php');
 
 session_start();
 
@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 // Fetch the user's name from the session
-$user_name = $_SESSION['name']; 
+$user_name = $_SESSION['name'];
 
 // Determine the greeting based on the current time
 $hour = date("H");
@@ -56,6 +56,7 @@ if ($rejected_result->num_rows > 0) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -102,15 +103,17 @@ if ($rejected_result->num_rows > 0) {
         .logout-button:hover {
             background-color: #c82333;
         }
+
         .welcome-message {
             font-size: 1.5rem;
             margin-bottom: 20px;
         }
     </style>
 </head>
+
 <body>
 
-    
+
 
     <div class="dashboard-container">
         <div class="container">
@@ -129,7 +132,7 @@ if ($rejected_result->num_rows > 0) {
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Approved Leave Requests Card -->
                 <div class="col-md-4">
                     <div class="card text-white bg-success mb-3">
@@ -140,7 +143,7 @@ if ($rejected_result->num_rows > 0) {
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Rejected Leave Requests Card -->
                 <div class="col-md-4">
                     <div class="card text-white bg-danger mb-3">
@@ -152,32 +155,52 @@ if ($rejected_result->num_rows > 0) {
                     </div>
                 </div>
 
-                
-                
+
+
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-12 text-center">
-                <a href="../leave/review_leave_requests.php" class="btn btn-warning mt-3">Review Pending Leave Requests</a>
+        <div class="container mt-4">
+            <div class="card border-primary shadow-lg mx-auto" style="width: 400px;"> 
+                <div class="card-body text-center p-4">
+                    <h4 class="card-title mb-4">Manage Leave Requests</h4>
+
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a href="../leave/review_leave_requests.php" class="btn btn-warning w-100 mt-3">
+                                Review Pending Leave Requests
+                            </a>
+                        </div>
+                    </div>
+
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a href="../leave/leave_request_logs.php" class="btn btn-info w-100 mt-2">
+                                View Leave Request Logs
+                            </a>
+                        </div>
+                    </div>
+
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a href="../profile/profile.php" class="btn btn-warning w-100 mt-3">
+                                Go to Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <br>
 
-        <div class="row">
-            <div class="col-md-12 text-center">
-                <a href="../leave/leave_request_logs.php" class="btn btn-info btn-logs">View Leave Request Logs</a>
-            </div>
-        </div>
 
-        <div class="col-md-12 text-center">
-            <a href="../profile/profile.php" class="btn btn-warning mt-3">Go to Profile</a>
-        </div>
 
-        
         <a href="http://localhost/leave_management/auth/logout.php" class="logout-button">Logout</a>
     </div>
 
-   
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
+
 </html>

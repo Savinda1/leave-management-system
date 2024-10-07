@@ -23,11 +23,7 @@ $result = $stmt->get_result();
 $toastMessage = isset($_SESSION['toast_message']) ? $_SESSION['toast_message'] : null;
 unset($_SESSION['toast_message']);
 
-// When a new leave request is created
-$admin_message = 'A new leave request is pending approval.';
-$stmt = $conn->prepare("INSERT INTO notifications (user_id, message) VALUES (0, ?)");
-$stmt->bind_param("s", $admin_message);
-$stmt->execute();
+
 
 ?>
 
