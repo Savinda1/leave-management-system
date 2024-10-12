@@ -1,8 +1,10 @@
 <?php
+session_start();
 // Include database connection
 include('../config/config.php');
 include('../includes/header.php');
-session_start();
+include('../includes/sidebar.php');
+
 
 // Check if the user is logged in as staff
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'staff') {
@@ -57,16 +59,8 @@ foreach ($queries as $key => $query) {
         }
 
         .dashboard-container {
-            width: 80%;
-            margin: 0 auto;
+            margin-left: 260px; /* Ensure it matches your sidebar width */
             padding: 30px;
-        }
-
-        header {
-            background-color: #343a40;
-            color: white;
-            padding: 15px;
-            text-align: center;
         }
 
         .card {
@@ -76,6 +70,14 @@ foreach ($queries as $key => $query) {
         .welcome-message {
             font-size: 1.5rem;
             margin-bottom: 20px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                margin-left: 0; /* Collapse sidebar on smaller screens */
+                padding: 15px;
+            }
         }
     </style>
 </head>
@@ -120,46 +122,8 @@ foreach ($queries as $key => $query) {
                 </div>
             </div>
 
-
-            <div class="container mt-4">
-                <div class="card border-primary shadow-lg mx-auto" style="width: 400px;"> <!-- Set a specific width -->
-                    <div class="card-body text-center p-4">
-                        <h4 class="card-title mb-4">Manage Your Leave</h4>
-
-                        <!-- Previous Leave Requests Button -->
-                        <div class="row">
-                            <div class="col-md-12">
-                                <a href="../leave/leave_request_logs_for_staff.php" class="btn btn-warning w-100 mt-2"> <!-- Full width button -->
-                                    View Previous Leave Requests
-                                </a>
-                            </div>
-                        </div>
-
-
-                        <!-- Apply for Leave Button -->
-                        <div class="row">
-                            <div class="col-md-12">
-                                <a href="../leave/apply_for_leave.php" class="btn btn-info btn-logs w-100 mt-2"> <!-- Full width button -->
-                                    Apply for a Leave
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- Go to Profile Button -->
-                        <div class="row">
-                            <div class="col-md-12">
-                                <a href="../profile/profile.php" class="btn btn-warning w-100 mt-2"> <!-- Full width button -->
-                                    Go to Profile
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <a href="http://localhost/leave_management/auth/logout.php" class="btn btn-danger">Logout</a>
         </div>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

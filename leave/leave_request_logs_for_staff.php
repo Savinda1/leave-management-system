@@ -1,8 +1,25 @@
 <?php
 // Include database connection
-include('../config/config.php');
-include('../includes/header.php'); 
 session_start();
+include('../config/config.php');
+$profile_picture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_picture'] : 'default.jpg';
+$user_name = $_SESSION['name'];
+?>
+
+<header class="d-flex justify-content-between align-items-center p-3 bg-dark text-white">
+    <h1 class="ms-3">Leave Request Logs</h1>
+    <div class="d-flex align-items-center me-3">
+        <img src="../uploads/profile_pics/<?php echo htmlspecialchars($profile_picture); ?>"
+            alt="Profile Picture"
+            style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%; margin-right: 10px;">
+        <span><?php echo htmlspecialchars($user_name); ?></span>
+    </div>
+</header>
+
+<?php
+
+include('../includes/sidebar.php');
+
 
 // Check if the user is logged in and is staff
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'staff') {
@@ -53,12 +70,17 @@ $stmt->close();
     <style>
         .table-container {
             margin-top: 20px;
+            max-width:1210px;
+        }
+        .container {
+            margin-left: 260px; /* Ensure it matches your sidebar width */
+            padding: 30px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2 class="text-center mt-4">Leave Request Logs</h2>
+        
 
         <!-- Filter Form -->
         <form method="GET" class="mb-4">
@@ -113,9 +135,7 @@ $stmt->close();
         </div>
     </div>
 
-    <div class="col-md-12 text-center">
-                <a href="../staff/dashboard.php" class="btn btn-warning mt-3">Go to Dashboard</a>
-    </div>
+    
 
     <br><br>
 </body>

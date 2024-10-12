@@ -16,6 +16,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            overflow: hidden;
         }
 
         .container {
@@ -35,7 +36,6 @@
             font-weight: 600;
             letter-spacing: 1px;
         }
-
 
         .form-group {
             margin-bottom: 20px;
@@ -93,11 +93,55 @@
             transition: background-color 0.3s ease;
         }
 
-        button:hover {
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        button:hover:not(:disabled) {
             background-color: #0056b3;
         }
 
-        
+        .strength-meter {
+            margin-top: 10px;
+        }
+
+        .strength-meter div {
+            height: 10px;
+            background-color: lightgray;
+            margin-top: 5px;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        .strength-meter .weak {
+            width: 25%;
+            background-color: red;
+        }
+
+        .strength-meter .medium {
+            width: 50%;
+            background-color: orange;
+        }
+
+        .strength-meter .strong {
+            width: 75%;
+            background-color: yellowgreen;
+        }
+
+        .strength-meter .very-strong {
+            width: 100%;
+            background-color: green;
+        }
+
+        .confirm-password-valid {
+            border-color: green !important;
+        }
+
+        .confirm-password-invalid {
+            border-color: red !important;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -107,7 +151,7 @@
 </head>
 
 <body>
-    <div class="container mt-5">
+    <div class="container">
         <h2>Sign Up</h2>
         <form action="signup_process.php" method="POST">
             
@@ -116,25 +160,28 @@
                 <input type="text" id="name" name="name" required class="form-control">
             </div>
 
-            
             <div class="form-group">
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" required class="form-control">
             </div>
 
-            
             <div class="form-group">
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" required class="form-control">
+                
+                <!-- Password strength meter -->
+                <div class="strength-meter">
+                    <div id="strength-bar"></div>
+                </div>
+
+                
             </div>
 
-           
             <div class="form-group">
                 <label for="confirm_password">Confirm Password:</label>
                 <input type="password" id="confirm_password" name="confirm_password" required class="form-control">
             </div>
 
-           
             <div class="form-group">
                 <label for="role">Role:</label>
                 <select id="role" name="role" class="form-control" required>
@@ -143,17 +190,69 @@
                 </select>
             </div>
 
-            
-            <button type="submit" class="btn btn-primary">Sign Up</button>
+            <button type="submit" id="signup-btn" class="btn btn-primary" disabled>Sign Up</button>
 
             <div class="form-footer">
-
                 <p>Already have an account? <a href="signin.php">Sign In</a></p>
             </div>
         </form>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <script>
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm_password');
+        const strengthBar = document.getElementById('strength-bar');
+        const strengthText = document.getElementById('password-strength-text');
+        const signupBtn = document.getElementById('signup-btn');
+
+        // Password Strength Meter Logic
+        password.addEventListener('input', function () {
+            const val = password.value;
+            let strength = 0;
+
+            if (val.match(/[a-z]+/)) strength += 1; // lowercase
+            if (val.match(/[A-Z]+/)) strength += 1; // uppercase
+            if (val.match(/[0-9]+/)) strength += 1; // numbers
+            if (val.match(/[\W_]+/)) strength += 1; // special characters
+
+            switch (strength) {
+                case 0:
+                    strengthBar.className = '';
+                    signupBtn.disabled = true;
+                    break;
+                case 1:
+                    strengthBar.className = 'weak';
+                    signupBtn.disabled = true;
+                    break;
+                case 2:
+                    strengthBar.className = 'medium';
+                    signupBtn.disabled = true;
+                    break;
+                case 3:
+                    strengthBar.className = 'strong';
+                    signupBtn.disabled = false;
+                    break;
+                case 4:
+                    strengthBar.className = 'very-strong';
+                    signupBtn.disabled = false;
+                    break;
+            }
+        });
+
+        // Confirm Password Match Logic
+        confirmPassword.addEventListener('input', function () {
+            if (confirmPassword.value === password.value && password.value !== '') {
+                confirmPassword.classList.add('confirm-password-valid');
+                confirmPassword.classList.remove('confirm-password-invalid');
+            } else {
+                confirmPassword.classList.add('confirm-password-invalid');
+                confirmPassword.classList.remove('confirm-password-valid');
+            }
+        });
+    </script>
+
 </body>
 
 </html>
