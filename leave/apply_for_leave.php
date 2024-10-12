@@ -1,16 +1,31 @@
 <?php
+session_start();
 include('../config/config.php');
 
-session_start();
+$profile_picture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_picture'] : 'default.jpg';
+$user_name = $_SESSION['name'];
+
+?>
+    <header class="d-flex justify-content-between align-items-center p-3 bg-dark text-white">
+        <h1 class="ms-3">Apply For Leave</h1>
+        <div class="d-flex align-items-center me-3">
+            <img src="../uploads/profile_pics/<?php echo htmlspecialchars($profile_picture); ?>"
+                alt="Profile Picture"
+                style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%; margin-right: 10px;">
+            <span><?php echo htmlspecialchars($user_name); ?></span>
+        </div>
+    </header>
+
+
+<?php
+
+include('../includes/sidebar.php');
 
 // Check if the user is logged in as staff
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'staff') {
     header('Location: ../auth/signin.php');
     exit();
 }
-
-$profile_picture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_picture'] : 'default.jpg';
-$user_name = $_SESSION['name'];
 
 // Handle leave application
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -28,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($stmt->execute()) {
         // Successfully inserted leave request
         $success_message = "Leave request submitted successfully!";
-        
+
         // Insert notification for admin
         $admin_message = "A new leave request has been submitted by " . $_SESSION['name'] . ".";
         $is_read = 0; // Mark as unread
@@ -38,7 +53,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt_notification->bind_param("sis", $admin_message, $is_read, $created_at);
         $stmt_notification->execute();
         $stmt_notification->close();
-
     } else {
         // If leave request insertion fails
         $error_message = "Failed to submit leave request.";
@@ -48,7 +62,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -56,21 +69,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apply For Leave</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+
         header {
             background-color: #343a40;
-            padding: 10px;
+            padding: 15px;
             color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        header h1 {
-            margin: 0;
-            font-size: 1.5rem;
-        }
+
 
         header img {
             width: 40px;
@@ -79,40 +98,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             object-fit: cover;
         }
 
-        header .user-info {
-            display: flex;
-            align-items: center;
+        .container {
+            margin-left: 260px;
+            padding: 20px;
         }
 
-        header .user-info span {
-            margin-left: 10px;
-            font-size: 1.1rem;
-            color: #ffffff;
+        .card {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
         }
+
+        .card-header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .form-control,
+        .form-select {
+            max-width: 100%;
+            width: 100%;
+        }
+
+        .btn-primary {
+            width: 100%;
+        }
+
+        
     </style>
 </head>
 
 <body>
-    <header class="d-flex justify-content-between align-items-center p-3 bg-dark text-white">
-        <h1 class="ms-3"><?php
-                            if (!isset($_SESSION['user_id']) || $_SESSION['role'] == 'staff') {
-                                echo "Apply for a leave";
-                            }
-                            ?></h1>
 
 
-        <div class="d-flex align-items-center me-3">
-            <img src="../uploads/profile_pics/<?php echo htmlspecialchars($profile_picture); ?>"
-                alt="Profile Picture"
-                style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%; margin-right: 10px;">
-            <span><?php echo htmlspecialchars($user_name); ?></span>
-        </div>
-    </header>
-    <br><br>
+
+
+    <!-- Leave Application Form -->
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <div class="card mb-3">
+                <div class="card">
                     <div class="card-header">Apply for Leave</div>
                     <div class="card-body">
                         <?php if (isset($success_message)): ?>
@@ -155,11 +183,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
         </div>
     </div>
-    <div class="col-md-12 text-center">
-        <a href="../staff/dashboard.php" class="btn btn-warning mt-3">Go to Dashboard</a>
-    </div>
-    <br>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

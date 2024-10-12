@@ -1,5 +1,6 @@
 <?php
 include('../config/config.php');
+
 session_start();
 
 // Check if the user is logged in
@@ -97,7 +98,7 @@ if (isset($_SESSION['profile_picture'])) {
 </head>
 <header class="d-flex justify-content-between align-items-center p-3 bg-dark text-white">
         <h1 class="ms-3"><?php
-                            if (!isset($_SESSION['user_id']) || $_SESSION['role'] == 'admin') {
+                            if (!isset($_SESSION['user_id']) || $_SESSION['role'] == 'admin' || $_SESSION['role'] == 'staff') {
                                 echo "Update Profile";
                             }
                             ?></h1>
@@ -110,6 +111,8 @@ if (isset($_SESSION['profile_picture'])) {
             <span><?php echo htmlspecialchars($user_name); ?></span>
         </div>
     </header>
+
+    <?php include('../includes/sidebar.php');?>
 <body>
     <div class="container mt-5">
         <h2>Profile</h2>
@@ -157,17 +160,9 @@ if (isset($_SESSION['profile_picture'])) {
 
 
 
-        <div class="col-md-12 text-center">
-            <?php
-            if ($_SESSION['role'] == 'staff') {
-                echo '<a href="../staff/dashboard.php" class="btn btn-warning mt-3">Go to Dashboard</a>';
-            } elseif ($_SESSION['role'] == 'admin') {
-                echo '<a href="../admin/dashboard.php" class="btn btn-warning mt-3">Go to Dashboard</a>';
-            }
-            ?>
-        </div>
+        
 
-        <a href="../auth/logout.php" class="btn btn-danger">Logout</a>
+       
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

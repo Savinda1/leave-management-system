@@ -1,8 +1,33 @@
 <?php
 // Include database connection
-include('../config/config.php');
- 
 session_start();
+include('../config/config.php');
+
+$profile_picture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_picture'] : 'default.jpg';
+$user_name = $_SESSION['name'];
+
+?>
+    <header class="d-flex justify-content-between align-items-center p-3 bg-dark text-white">
+        <h1 class="ms-3"><?php
+                            if (!isset($_SESSION['user_id']) || $_SESSION['role'] == 'admin') {
+                                echo "Leave Request Logs";
+                            }
+                            ?></h1>
+
+
+        <div class="d-flex align-items-center me-3">
+            <img src="../uploads/profile_pics/<?php echo htmlspecialchars($profile_picture); ?>"
+                alt="Profile Picture"
+                style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%; margin-right: 10px;">
+            <span><?php echo htmlspecialchars($user_name); ?></span>
+        </div>
+    </header>
+
+<?php
+
+include('../includes/sidebar.php');
+ 
+
 
 // Check if the user is logged in and is an admin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
@@ -14,8 +39,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $status_filter = isset($_GET['status']) ? $_GET['status'] : '';
 
-$profile_picture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_picture'] : 'default.jpg';
-$user_name = $_SESSION['name'];
+
 
 // Build the query with filters
 $query = "SELECT leave_requests.id, u.name, leave_requests.leave_type, leave_requests.start_date, leave_requests.end_date, leave_requests.reason, leave_requests.status, leave_requests.created_at 
@@ -50,25 +74,21 @@ $result = $conn->query($query);
     <style>
         .table-container {
             margin-top: 20px;
+            max-width: 1210px;
+        }
+        .container {
+            margin-left: 260px; /* Ensure it matches your sidebar width */
+            padding: 30px;
+        }
+        hr{
+            border: 0;
+            height: 1px;
+            background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
         }
     </style>
 </head>
 <body>
-<header class="d-flex justify-content-between align-items-center p-3 bg-dark text-white">
-        <h1 class="ms-3"><?php
-                            if (!isset($_SESSION['user_id']) || $_SESSION['role'] == 'admin') {
-                                echo "Leave Request Logs";
-                            }
-                            ?></h1>
 
-
-        <div class="d-flex align-items-center me-3">
-            <img src="../uploads/profile_pics/<?php echo htmlspecialchars($profile_picture); ?>"
-                alt="Profile Picture"
-                style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%; margin-right: 10px;">
-            <span><?php echo htmlspecialchars($user_name); ?></span>
-        </div>
-    </header>
     <div class="container">
         <br><hr>
 
@@ -128,9 +148,7 @@ $result = $conn->query($query);
         </div>
     </div>
 
-    <div class="col-md-12 text-center">
-                <a href="../admin/dashboard.php" class="btn btn-warning mt-3">Go to Dashboard</a>
-    </div>
+    
 
     <br><br>
 </body>
