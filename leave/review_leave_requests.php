@@ -1,13 +1,16 @@
 <?php
 session_start();
 include('../config/config.php');
-include('../includes/header.php');
+
 
 // Check if the user is logged in and is an admin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../auth/signin.php');
     exit();
 }
+
+$profile_picture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_picture'] : 'default.jpg';
+$user_name = $_SESSION['name'];
 
 // Fetch pending leave requests using prepared statements
 $stmt = $conn->prepare("SELECT leave_requests.id, users.name AS name, leave_requests.leave_type, leave_requests.start_date, leave_requests.end_date, leave_requests.reason 
@@ -56,6 +59,22 @@ unset($_SESSION['toast_message']);
         }
     </style>
 </head>
+
+    <header class="d-flex justify-content-between align-items-center p-3 bg-dark text-white">
+        <h1 class="ms-3"><?php
+                            if (!isset($_SESSION['user_id']) || $_SESSION['role'] == 'admin') {
+                                echo "Review Leave Request Logs";
+                            }
+                            ?></h1>
+
+
+        <div class="d-flex align-items-center me-3">
+            <img src="../uploads/profile_pics/<?php echo htmlspecialchars($profile_picture); ?>"
+                alt="Profile Picture"
+                style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%; margin-right: 10px;">
+            <span><?php echo htmlspecialchars($user_name); ?></span>
+        </div>
+    </header>
 <body>
 
 <div class="container">

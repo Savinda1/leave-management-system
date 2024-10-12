@@ -1,8 +1,8 @@
 <style>
     .notification-margin {
-    margin-right: -500px; /* Adjust the value as needed */
-}
-
+        margin-right: -500px;
+        
+    }
 </style>
 
 <?php
@@ -11,7 +11,7 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Ensure the user is logged in
+
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../auth/signin.php');
     exit();
@@ -26,25 +26,25 @@ $user_name = $_SESSION['name'];
         <?php echo $_SESSION['role'] == 'staff' ? "Staff - Dashboard" : "Administrator - Dashboard"; ?>
     </h1>
 
-    <div class="dropdown notification-margin"> <!-- Added custom class -->
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+    <div class="dropdown notification-margin">
+        <button class="btn btn-dark dropdown-toggle" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
             Notifications
             <?php
-            // Fetch notifications count
+            // Fetch unread notifications count
             $stmt = $conn->prepare("SELECT COUNT(*) FROM notifications WHERE user_id = ? AND is_read = 0");
-            $user_id = $_SESSION['role'] == 'admin' ? 0 : $_SESSION['user_id']; 
+            $user_id = $_SESSION['role'] == 'admin' ? 0 : $_SESSION['user_id'];
             $stmt->bind_param("i", $user_id);
             $stmt->execute();
             $stmt->bind_result($unread_count);
             $stmt->fetch();
-            echo "<span class='badge bg-danger'>$unread_count</span>";
+            echo $unread_count > 0 ? "<span class='badge bg-danger'>$unread_count</span>" : "";
             $stmt->close();
             ?>
         </button>
         <ul class="dropdown-menu" aria-labelledby="notificationDropdown">
             <?php
             // Fetch notifications for the user
-            $stmt = $conn->prepare("SELECT id, message FROM notifications WHERE user_id = ? AND is_read = 0 ORDER BY created_at DESC");
+            $stmt = $conn->prepare("SELECT message FROM notifications WHERE user_id = ? AND is_read = 0 ORDER BY created_at DESC");
             $stmt->bind_param("i", $user_id);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -56,13 +56,10 @@ $user_name = $_SESSION['name'];
             } else {
                 echo "<li class='dropdown-item'>No new notifications</li>";
             }
-
             $stmt->close();
             ?>
         </ul>
     </div>
-
-
 
     <!-- User Profile Picture and Name -->
     <div class="d-flex align-items-center me-3">
@@ -72,3 +69,29 @@ $user_name = $_SESSION['name'];
         <span><?php echo htmlspecialchars($user_name); ?></span>
     </div>
 </header>
+
+
+<script>
+    document.getElementById('notificationDropdown').addEventListener('click', function() {
+        // Send AJAX request to mark notifications as read
+        fetch('../includes/mark_notifications_read.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+               
+                const badge = document.querySelector('#notificationDropdown .badge');
+                if (badge) {
+                    badge.remove(); 
+                }
+            } else {
+                console.error(data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>

@@ -1,7 +1,7 @@
 <?php
 // Include database connection
 include('../config/config.php');
-include('../includes/header.php'); 
+ 
 session_start();
 
 // Check if the user is logged in and is an admin
@@ -13,6 +13,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 // Initialize filter variables
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $status_filter = isset($_GET['status']) ? $_GET['status'] : '';
+
+$profile_picture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_picture'] : 'default.jpg';
+$user_name = $_SESSION['name'];
 
 // Build the query with filters
 $query = "SELECT leave_requests.id, u.name, leave_requests.leave_type, leave_requests.start_date, leave_requests.end_date, leave_requests.reason, leave_requests.status, leave_requests.created_at 
@@ -51,8 +54,23 @@ $result = $conn->query($query);
     </style>
 </head>
 <body>
+<header class="d-flex justify-content-between align-items-center p-3 bg-dark text-white">
+        <h1 class="ms-3"><?php
+                            if (!isset($_SESSION['user_id']) || $_SESSION['role'] == 'admin') {
+                                echo "Leave Request Logs";
+                            }
+                            ?></h1>
+
+
+        <div class="d-flex align-items-center me-3">
+            <img src="../uploads/profile_pics/<?php echo htmlspecialchars($profile_picture); ?>"
+                alt="Profile Picture"
+                style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%; margin-right: 10px;">
+            <span><?php echo htmlspecialchars($user_name); ?></span>
+        </div>
+    </header>
     <div class="container">
-        <h2 class="text-center mt-4">Leave Request Logs</h2>
+        <br><hr>
 
         <!-- Search and Filter Form -->
         <form method="GET" class="mb-4">
