@@ -10,8 +10,10 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-$showToast = false; // Variable to determine whether to show the toast
+$showToast = false; 
 
+$profile_picture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_picture'] : 'default.jpg';
+$user_name = $_SESSION['name'];
 // Handle profile update form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $conn->real_escape_string($_POST['name']);
@@ -49,8 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Update the name and email
     $update_query = "UPDATE users SET name = '$name', email = '$email' WHERE id = $user_id";
     if ($conn->query($update_query)) {
-        // echo "Profile updated successfully!";
-        $showToast = true; // Set flag to true after successful update
+        
+        $showToast = true; 
     } else {
         echo "Error updating profile.";
     }
@@ -93,7 +95,21 @@ if (isset($_SESSION['profile_picture'])) {
         }
     </style>
 </head>
+<header class="d-flex justify-content-between align-items-center p-3 bg-dark text-white">
+        <h1 class="ms-3"><?php
+                            if (!isset($_SESSION['user_id']) || $_SESSION['role'] == 'admin') {
+                                echo "Update Profile";
+                            }
+                            ?></h1>
 
+
+        <div class="d-flex align-items-center me-3">
+            <img src="../uploads/profile_pics/<?php echo htmlspecialchars($profile_picture); ?>"
+                alt="Profile Picture"
+                style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%; margin-right: 10px;">
+            <span><?php echo htmlspecialchars($user_name); ?></span>
+        </div>
+    </header>
 <body>
     <div class="container mt-5">
         <h2>Profile</h2>
