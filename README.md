@@ -20,7 +20,7 @@ To set up the Leave Management System locally, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/leave-management-system.git
+   git clone https://github.com/Ceeejeey/leave-management-system.git
    ```
 
 2. Navigate to the project directory:
