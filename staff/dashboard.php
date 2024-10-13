@@ -56,10 +56,11 @@ foreach ($queries as $key => $query) {
     <style>
         body {
             background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
         }
 
         .dashboard-container {
-            margin-left: 260px; /* Ensure it matches your sidebar width */
+            margin-left: 260px; 
             padding: 30px;
         }
 
@@ -72,10 +73,10 @@ foreach ($queries as $key => $query) {
             margin-bottom: 20px;
         }
 
-        /* Responsive adjustments */
+        
         @media (max-width: 768px) {
             .dashboard-container {
-                margin-left: 0; /* Collapse sidebar on smaller screens */
+                margin-left: 0; 
                 padding: 15px;
             }
         }

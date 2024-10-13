@@ -230,7 +230,7 @@ if (isset($_SESSION['profile_picture'])) {
         <div class="toast-container">
             <div id="profileUpdateToast" class="toast <?php echo ($toastType == 'success') ? 'bg-success text-white' : 'bg-danger text-white'; ?>" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="toast-header">
-                    <!-- <strong class="me-auto">Notification</strong> -->
+                    <strong class="me-auto">Notification</strong>
                     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
                 <div class="toast-body">
